@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { testConnection } from './config/db.js';
+import matakuliahRoutes from './routes/matakuliah.js';
+import praktikanRoutes from './routes/praktikan.js';
+import modulRoutes from './routes/modul.js';
+import rubrikRoutes from './routes/rubrik.js';
 
 dotenv.config();
 
@@ -21,6 +25,10 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/api/health',
       dbStatus: '/api/db-status',
+      matakuliah: '/api/matakuliah',
+      praktikan: '/api/praktikan',
+      modul: '/api/modul',
+      rubrik: '/api/rubrik',
     },
   });
 });
@@ -43,6 +51,12 @@ app.get('/api/db-status', async (req, res) => {
     res.status(500).json(result);
   }
 });
+
+// Rute API
+app.use('/api/matakuliah', matakuliahRoutes);
+app.use('/api/praktikan', praktikanRoutes);
+app.use('/api/modul', modulRoutes);
+app.use('/api/rubrik', rubrikRoutes);
 
 // Jalankan server
 app.listen(PORT, async () => {
