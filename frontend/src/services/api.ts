@@ -1,4 +1,4 @@
-import type { MataKuliah, Praktikan, Modul, Rubrik, ApiResponse } from '../types';
+import type { MataKuliah, Kelas, Praktikan, Modul, Rubrik, Penilaian, ApiResponse } from '../types';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -31,17 +31,48 @@ export const api = {
     return res.json();
   },
 
-  // Praktikan
-  async getPraktikan(): Promise<ApiResponse<Praktikan[]>> {
-    const res = await fetch(`${API_BASE_URL}/praktikan`);
+  // Kelas
+  async getKelas(matakuliahId?: number): Promise<ApiResponse<Kelas[]>> {
+    const url = matakuliahId
+      ? `${API_BASE_URL}/kelas?matakuliah_id=${matakuliahId}`
+      : `${API_BASE_URL}/kelas`;
+    const res = await fetch(url);
     return res.json();
   },
 
-  async addPraktikan(nim: string, nama: string): Promise<ApiResponse<Praktikan>> {
+  async addKelas(matakuliahId: number, namaKelas: string): Promise<ApiResponse<Kelas>> {
+    const res = await fetch(`${API_BASE_URL}/kelas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ matakuliah_id: matakuliahId, nama_kelas: namaKelas }),
+    });
+    return res.json();
+  },
+
+  async deleteKelas(id: number): Promise<ApiResponse<null>> {
+    const res = await fetch(`${API_BASE_URL}/kelas/${id}`, {
+      method: 'DELETE',
+    });
+    return res.json();
+  },
+
+  // Praktikan
+  async getPraktikan(kelasId?: number, matakuliahId?: number): Promise<ApiResponse<Praktikan[]>> {
+    const params = new URLSearchParams();
+    if (kelasId) params.append('kelas_id', String(kelasId));
+    if (matakuliahId) params.append('matakuliah_id', String(matakuliahId));
+    const url = params.toString()
+      ? `${API_BASE_URL}/praktikan?${params.toString()}`
+      : `${API_BASE_URL}/praktikan`;
+    const res = await fetch(url);
+    return res.json();
+  },
+
+  async addPraktikan(nim: string, nama: string, kelasId: number): Promise<ApiResponse<Praktikan>> {
     const res = await fetch(`${API_BASE_URL}/praktikan`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nim, nama }),
+      body: JSON.stringify({ nim, nama, kelas_id: kelasId }),
     });
     return res.json();
   },
@@ -103,6 +134,46 @@ export const api = {
 
   async deleteRubrik(id: number): Promise<ApiResponse<null>> {
     const res = await fetch(`${API_BASE_URL}/rubrik/${id}`, {
+      method: 'DELETE',
+    });
+    return res.json();
+  },
+
+  // Penilaian
+  async getPenilaian(params?: {
+    modul_id?: number;
+    kelas_id?: number;
+    praktikan_id?: number;
+    matakuliah_id?: number;
+  }): Promise<ApiResponse<Penilaian[]>> {
+    const query = new URLSearchParams();
+    if (params?.modul_id) query.append('modul_id', String(params.modul_id));
+    if (params?.kelas_id) query.append('kelas_id', String(params.kelas_id));
+    if (params?.praktikan_id) query.append('praktikan_id', String(params.praktikan_id));
+    if (params?.matakuliah_id) query.append('matakuliah_id', String(params.matakuliah_id));
+    const url = query.toString()
+      ? `${API_BASE_URL}/penilaian?${query.toString()}`
+      : `${API_BASE_URL}/penilaian`;
+    const res = await fetch(url);
+    return res.json();
+  },
+
+  async savePenilaian(payload: {
+    praktikan_id: number;
+    modul_id: number;
+    nilai_angka: number;
+    catatan_evaluasi: string;
+  }): Promise<ApiResponse<Penilaian>> {
+    const res = await fetch(`${API_BASE_URL}/penilaian`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
+
+  async deletePenilaian(id: number): Promise<ApiResponse<null>> {
+    const res = await fetch(`${API_BASE_URL}/penilaian/${id}`, {
       method: 'DELETE',
     });
     return res.json();

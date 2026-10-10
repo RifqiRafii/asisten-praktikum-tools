@@ -19,10 +19,46 @@ interface ModulRubrikManagerProps {
 }
 
 const DEFAULT_KRITERIA: KriteriaItem[] = [
-  { aspek: 'Kesesuaian Spesifikasi & Fungsionalitas', bobot: 40, deskripsi: 'Fitur utama berjalan sesuai instruksi soal' },
-  { aspek: 'Kualitas Kode & Best Practices', bobot: 30, deskripsi: 'Struktur kode rapi, indentasi konsisten, penamaan variabel jelas' },
-  { aspek: 'Kreativitas & Validasi Input', bobot: 20, deskripsi: 'Penanganan edge cases dan penyajian antarmuka' },
-  { aspek: 'Pemahaman & Wawancara / Demo', bobot: 10, deskripsi: 'Mampu menjelaskan alur logika kode yang dibuat' },
+  {
+    aspek: 'Kesesuaian Spesifikasi & Fungsionalitas',
+    bobot: 40,
+    deskripsi: 'Fitur utama berjalan sesuai instruksi soal',
+    opsi: [
+      { label: 'a', tingkat: 'Sesuai seluruh instruksi & ketentuan', skor_persen: 100 },
+      { label: 'b', tingkat: 'Hanya sebagian yang benar / kurang lengkap', skor_persen: 50 },
+      { label: 'c', tingkat: 'Tidak ada yang benar / tidak dibuat', skor_persen: 0 }
+    ]
+  },
+  {
+    aspek: 'Kualitas Kode & Best Practices',
+    bobot: 30,
+    deskripsi: 'Struktur kode rapi, indentasi konsisten, penamaan variabel jelas',
+    opsi: [
+      { label: 'a', tingkat: 'Sangat rapi, bersih, dan modular', skor_persen: 100 },
+      { label: 'b', tingkat: 'Cukup rapi namun ada pengulangan atau indentasi acak', skor_persen: 50 },
+      { label: 'c', tingkat: 'Struktur berantakan dan sulit dibaca', skor_persen: 0 }
+    ]
+  },
+  {
+    aspek: 'Kreativitas & Validasi Input',
+    bobot: 20,
+    deskripsi: 'Penanganan edge cases dan penyajian antarmuka',
+    opsi: [
+      { label: 'a', tingkat: 'Validasi lengkap dan tampilan intuitif', skor_persen: 100 },
+      { label: 'b', tingkat: 'Hanya validasi dasar', skor_persen: 50 },
+      { label: 'c', tingkat: 'Tidak ada validasi / tampilan rusak', skor_persen: 0 }
+    ]
+  },
+  {
+    aspek: 'Pemahaman & Wawancara / Demo',
+    bobot: 10,
+    deskripsi: 'Mampu menjelaskan alur logika kode yang dibuat',
+    opsi: [
+      { label: 'a', tingkat: 'Mampu menjawab dan menjelaskan logika dengan lancar', skor_persen: 100 },
+      { label: 'b', tingkat: 'Ragu-ragu atau hanya memahami sebagian', skor_persen: 50 },
+      { label: 'c', tingkat: 'Tidak mampu menjelaskan kode sama sekali', skor_persen: 0 }
+    ]
+  },
 ];
 
 export default function ModulRubrikManager({ onNotify }: ModulRubrikManagerProps) {
@@ -603,13 +639,24 @@ export default function ModulRubrikManager({ onNotify }: ModulRubrikManagerProps
                           </span>
                           <div className="flex flex-wrap gap-1">
                             {kriteriaArray.map((item, i) => (
-                              <span
+                              <div
                                 key={i}
-                                className="text-[10px] bg-white border border-slate-200 text-slate-700 px-1.5 py-0.5 rounded flex items-center gap-1 font-mono"
+                                className="text-[10px] bg-white border border-slate-200 text-slate-700 px-2 py-1 rounded font-mono w-full"
                               >
-                                <span>{item.aspek}</span>
-                                <strong className="text-emerald-700">{item.bobot}%</strong>
-                              </span>
+                                <div className="flex items-center justify-between">
+                                  <span>{item.aspek}</span>
+                                  <strong className="text-emerald-700">{item.bobot}%</strong>
+                                </div>
+                                {item.opsi && Array.isArray(item.opsi) && item.opsi.length > 0 && (
+                                  <div className="mt-1 pt-1 border-t border-slate-100 flex flex-wrap gap-1 text-[9px] text-slate-500">
+                                    {item.opsi.map((o) => (
+                                      <span key={o.label} className="bg-slate-50 px-1 py-0.2 rounded border border-slate-200">
+                                        <strong>{o.label.toUpperCase()}</strong>: {o.skor_persen}%
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             ))}
                           </div>
                         </div>

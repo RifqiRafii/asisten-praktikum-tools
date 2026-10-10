@@ -3,9 +3,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { testConnection } from './config/db.js';
 import matakuliahRoutes from './routes/matakuliah.js';
+import kelasRoutes from './routes/kelas.js';
 import praktikanRoutes from './routes/praktikan.js';
 import modulRoutes from './routes/modul.js';
 import rubrikRoutes from './routes/rubrik.js';
+import penilaianRoutes from './routes/penilaian.js';
 
 dotenv.config();
 
@@ -26,9 +28,11 @@ app.get('/', (req, res) => {
       health: '/api/health',
       dbStatus: '/api/db-status',
       matakuliah: '/api/matakuliah',
+      kelas: '/api/kelas',
       praktikan: '/api/praktikan',
       modul: '/api/modul',
       rubrik: '/api/rubrik',
+      penilaian: '/api/penilaian',
     },
   });
 });
@@ -54,9 +58,11 @@ app.get('/api/db-status', async (req, res) => {
 
 // Rute API
 app.use('/api/matakuliah', matakuliahRoutes);
+app.use('/api/kelas', kelasRoutes);
 app.use('/api/praktikan', praktikanRoutes);
 app.use('/api/modul', modulRoutes);
 app.use('/api/rubrik', rubrikRoutes);
+app.use('/api/penilaian', penilaianRoutes);
 
 // Jalankan server
 app.listen(PORT, async () => {

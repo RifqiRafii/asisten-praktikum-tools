@@ -8,14 +8,18 @@ import {
   X, 
   Server, 
   Layers,
-  FileCode
+  FileCode,
+  Sparkles,
+  Award
 } from 'lucide-react';
 import MataKuliahManager from './components/MataKuliahManager';
 import PraktikanManager from './components/PraktikanManager';
 import ModulRubrikManager from './components/ModulRubrikManager';
+import PromptGenerator from './components/PromptGenerator';
+import FormPenilaian from './components/FormPenilaian';
 import { api } from './services/api';
 
-type TabType = 'all' | 'matakuliah' | 'praktikan' | 'rubrik';
+type TabType = 'penilaian' | 'prompt' | 'rubrik' | 'all' | 'matakuliah' | 'praktikan';
 
 interface Toast {
   id: number;
@@ -24,7 +28,7 @@ interface Toast {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('rubrik');
+  const [activeTab, setActiveTab] = useState<TabType>('penilaian');
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -95,11 +99,11 @@ export default function App() {
                   Asisten Praktikum Tools
                 </span>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">
-                  Tahap 3: Rubrik Modul
+                  Tahap 5: Form Penilaian
                 </span>
               </div>
               <p className="text-xs text-slate-500 hidden sm:block">
-                Sistem Penilaian, Template Rubrik, & Master Praktikum
+                Sistem Penilaian Praktikum, Form Evaluasi, & Master Kelas Laboratorium
               </p>
             </div>
           </div>
@@ -143,6 +147,28 @@ export default function App() {
         <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-6">
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
             <button
+              onClick={() => setActiveTab('penilaian')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'penilaian'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Form Penilaian & Evaluasi</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('prompt')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'prompt'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Prompt Rubrik AI</span>
+            </button>
+            <button
               onClick={() => setActiveTab('rubrik')}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'rubrik'
@@ -162,7 +188,7 @@ export default function App() {
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Data Master (Matkul & Praktikan)</span>
+              <span>Data Master (Berdampingan)</span>
             </button>
             <button
               onClick={() => setActiveTab('matakuliah')}
@@ -173,7 +199,7 @@ export default function App() {
               }`}
             >
               <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Mata Kuliah</span>
+              <span>Mata Kuliah & Kelas</span>
             </button>
             <button
               onClick={() => setActiveTab('praktikan')}
@@ -189,11 +215,23 @@ export default function App() {
           </div>
 
           <span className="text-xs text-slate-500 hidden sm:inline">
-            MySQL: <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-100 font-mono">asisten_praktikum_db</code>
+            MySQL DB: <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-100 font-mono">asisten_praktikum_db</code>
           </span>
         </div>
 
         {/* Content Area */}
+        {activeTab === 'penilaian' && (
+          <div>
+            <FormPenilaian onNotify={addToast} />
+          </div>
+        )}
+
+        {activeTab === 'prompt' && (
+          <div>
+            <PromptGenerator onNotify={addToast} />
+          </div>
+        )}
+
         {activeTab === 'rubrik' && (
           <div>
             <ModulRubrikManager onNotify={addToast} />
@@ -228,7 +266,7 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 py-3 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Clinical Precision Minimalist Design • Asisten Praktikum Tools</span>
-          <span className="text-slate-400">Tahap 3: Manajemen Rubrik Modul Selesai Diimplementasikan</span>
+          <span className="text-slate-400">Tahap 5: Form Penilaian & Evaluasi Selesai Diimplementasikan</span>
         </div>
       </footer>
     </div>

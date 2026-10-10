@@ -1,6 +1,6 @@
 -- ========================================================
 -- Schema Database MySQL: asisten_praktikum_db
--- Dibuat persis sesuai spesifikasi SCHEMA.md
+-- Dibuat persis sesuai spesifikasi SCHEMA.md (Revisi: Penambahan Kelas)
 -- ========================================================
 
 CREATE DATABASE IF NOT EXISTS `asisten_praktikum_db`
@@ -15,14 +15,28 @@ CREATE TABLE IF NOT EXISTS `matakuliah` (
   `nama` VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. Tabel praktikan
-CREATE TABLE IF NOT EXISTS `praktikan` (
+-- 2. Tabel kelas (Satu matakuliah dapat memiliki banyak kelas, misal: Kelas A, Kelas B)
+CREATE TABLE IF NOT EXISTS `kelas` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `nim` VARCHAR(20) NOT NULL UNIQUE,
-  `nama` VARCHAR(100) NOT NULL
+  `matakuliah_id` INT NOT NULL,
+  `nama_kelas` VARCHAR(50) NOT NULL,
+  CONSTRAINT `fk_kelas_matakuliah`
+    FOREIGN KEY (`matakuliah_id`) REFERENCES `matakuliah` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. Tabel modul
+-- 3. Tabel praktikan (Praktikan terdaftar spesifik per kelas)
+CREATE TABLE IF NOT EXISTS `praktikan` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `kelas_id` INT NULL,
+  `nim` VARCHAR(20) NOT NULL,
+  `nama` VARCHAR(100) NOT NULL,
+  CONSTRAINT `fk_praktikan_kelas`
+    FOREIGN KEY (`kelas_id`) REFERENCES `kelas` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Tabel modul (Modul bersifat umum per mata kuliah, dibagikan ke seluruh kelas)
 CREATE TABLE IF NOT EXISTS `modul` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `matakuliah_id` INT NOT NULL,
@@ -32,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `modul` (
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. Tabel rubrik
+-- 5. Tabel rubrik
 CREATE TABLE IF NOT EXISTS `rubrik` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `modul_id` INT NOT NULL,
@@ -44,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `rubrik` (
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 5. Tabel penilaian
+-- 6. Tabel penilaian
 CREATE TABLE IF NOT EXISTS `penilaian` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `praktikan_id` INT NOT NULL,
