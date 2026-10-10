@@ -10,16 +10,18 @@ import {
   Layers,
   FileCode,
   Sparkles,
-  Award
+  Award,
+  FileSpreadsheet
 } from 'lucide-react';
 import MataKuliahManager from './components/MataKuliahManager';
 import PraktikanManager from './components/PraktikanManager';
 import ModulRubrikManager from './components/ModulRubrikManager';
 import PromptGenerator from './components/PromptGenerator';
 import FormPenilaian from './components/FormPenilaian';
+import DashboardRekap from './components/DashboardRekap';
 import { api } from './services/api';
 
-type TabType = 'penilaian' | 'prompt' | 'rubrik' | 'all' | 'matakuliah' | 'praktikan';
+type TabType = 'rekap' | 'penilaian' | 'prompt' | 'rubrik' | 'all' | 'matakuliah' | 'praktikan';
 
 interface Toast {
   id: number;
@@ -99,7 +101,7 @@ export default function App() {
                   Asisten Praktikum Tools
                 </span>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">
-                  Tahap 5: Form Penilaian
+                  Tahap 6: Rekapitulasi & Export
                 </span>
               </div>
               <p className="text-xs text-slate-500 hidden sm:block">
@@ -146,6 +148,17 @@ export default function App() {
         {/* Navigation Tabs */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-6">
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
+            <button
+              onClick={() => setActiveTab('rekap')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'rekap'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Rekapitulasi & Export</span>
+            </button>
             <button
               onClick={() => setActiveTab('penilaian')}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
@@ -220,6 +233,12 @@ export default function App() {
         </div>
 
         {/* Content Area */}
+        {activeTab === 'rekap' && (
+          <div>
+            <DashboardRekap onNotify={addToast} />
+          </div>
+        )}
+
         {activeTab === 'penilaian' && (
           <div>
             <FormPenilaian onNotify={addToast} />

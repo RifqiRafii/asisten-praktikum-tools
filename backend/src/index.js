@@ -8,6 +8,7 @@ import praktikanRoutes from './routes/praktikan.js';
 import modulRoutes from './routes/modul.js';
 import rubrikRoutes from './routes/rubrik.js';
 import penilaianRoutes from './routes/penilaian.js';
+import rekapRoutes from './routes/rekap.js';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.get('/', (req, res) => {
       modul: '/api/modul',
       rubrik: '/api/rubrik',
       penilaian: '/api/penilaian',
+      rekap: '/api/rekap',
     },
   });
 });
@@ -63,6 +65,7 @@ app.use('/api/praktikan', praktikanRoutes);
 app.use('/api/modul', modulRoutes);
 app.use('/api/rubrik', rubrikRoutes);
 app.use('/api/penilaian', penilaianRoutes);
+app.use('/api/rekap', rekapRoutes);
 
 // Jalankan server
 app.listen(PORT, async () => {

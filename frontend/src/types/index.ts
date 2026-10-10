@@ -75,3 +75,40 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+export interface RekapItemNilai {
+  id: number;
+  nilai_angka: number;
+  catatan_evaluasi?: string;
+}
+
+export interface RekapMahasiswa {
+  id: number;
+  nim: string;
+  nama: string;
+  kelas_id: number;
+  nama_kelas: string;
+  nilaiPerModul: { [modulId: number]: RekapItemNilai | null };
+  totalModulDinilai: number;
+  rataRata: number;
+  predikat: string;
+  status: string;
+}
+
+export interface StatistikRekap {
+  totalPraktikan: number;
+  totalModul: number;
+  mahasiswaDinilai: number;
+  rataRataKelas: number;
+  nilaiTertinggi: number;
+  nilaiTerendah: number;
+  persenLulus: number;
+}
+
+export interface RekapData {
+  matakuliah: MataKuliah;
+  kelas: Kelas | null;
+  modulList: Modul[];
+  rekapMahasiswa: RekapMahasiswa[];
+  statistik: StatistikRekap;
+}

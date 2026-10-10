@@ -1,4 +1,4 @@
-import type { MataKuliah, Kelas, Praktikan, Modul, Rubrik, Penilaian, ApiResponse } from '../types';
+import type { MataKuliah, Kelas, Praktikan, Modul, Rubrik, Penilaian, RekapData, ApiResponse } from '../types';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -176,6 +176,14 @@ export const api = {
     const res = await fetch(`${API_BASE_URL}/penilaian/${id}`, {
       method: 'DELETE',
     });
+    return res.json();
+  },
+
+  // Rekapitulasi
+  async getRekap(matakuliahId: number, kelasId?: number): Promise<ApiResponse<RekapData>> {
+    const query = new URLSearchParams({ matakuliah_id: String(matakuliahId) });
+    if (kelasId) query.append('kelas_id', String(kelasId));
+    const res = await fetch(`${API_BASE_URL}/rekap?${query.toString()}`);
     return res.json();
   },
 };
