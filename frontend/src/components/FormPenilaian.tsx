@@ -488,10 +488,10 @@ export default function FormPenilaian({ onNotify }: FormPenilaianProps) {
                   <div
                     key={p.id}
                     onClick={() => setActivePraktikanId(p.id)}
-                    className={`p-3 transition cursor-pointer flex items-center justify-between ${
+                    className={`p-3 transition-colors cursor-pointer flex items-center justify-between ${
                       isSelected
-                        ? 'bg-emerald-50/70 border-l-4 border-l-emerald-600 font-medium'
-                        : 'hover:bg-slate-50'
+                        ? 'bg-emerald-50/80 ring-1 ring-inset ring-emerald-500/25 font-medium'
+                        : 'hover:bg-slate-50/80'
                     }`}
                   >
                     <div>
@@ -531,16 +531,15 @@ export default function FormPenilaian({ onNotify }: FormPenilaianProps) {
               <>
                 {/* Header Praktikan Aktif & Kalkulator Nilai */}
                 <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
-                      Mahasiswa Sedang Dinilai:
-                    </span>
-                    <h3 className="text-base font-bold text-slate-900 leading-tight">
-                      {currentPraktikan.nama}
-                    </h3>
-                    <span className="text-xs font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 mt-1 inline-block">
-                      NIM: {currentPraktikan.nim}
-                    </span>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base font-bold text-slate-900 leading-tight">
+                        {currentPraktikan.nama}
+                      </h3>
+                      <span className="text-xs font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold inline-block">
+                        {currentPraktikan.nim}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Skor Real-Time yang Terkalkulasi */}

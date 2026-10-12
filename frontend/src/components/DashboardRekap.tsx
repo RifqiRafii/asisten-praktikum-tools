@@ -522,13 +522,13 @@ export default function DashboardRekap({ onNotify }: DashboardRekapProps) {
           <div className="bg-white rounded-lg border border-slate-200 shadow-xl max-w-lg w-full p-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-start justify-between pb-3 border-b border-slate-200 mb-3">
               <div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
-                  Detail Evaluasi Modul
-                </span>
                 <h4 className="text-sm font-bold text-slate-900">
-                  {activeCatatan.nama} ({activeCatatan.nim})
+                  Detail Evaluasi Modul
                 </h4>
-                <p className="text-xs text-emerald-700 font-medium">
+                <p className="text-xs text-slate-700 font-medium mt-0.5">
+                  {activeCatatan.nama} <span className="font-mono text-slate-500">({activeCatatan.nim})</span>
+                </p>
+                <p className="text-xs text-emerald-700 font-semibold mt-0.5">
                   {activeCatatan.modulJudul} &bull; Nilai: {activeCatatan.nilai}
                 </p>
               </div>

@@ -11,8 +11,7 @@ import {
   Award, 
   FileSpreadsheet,
   Menu,
-  ChevronRight,
-  Database
+  ChevronRight
 } from 'lucide-react';
 import MataKuliahManager from './components/MataKuliahManager';
 import PraktikanManager from './components/PraktikanManager';
@@ -242,29 +241,11 @@ export default function App() {
           ))}
         </div>
 
-        {/* Sidebar Footer: Database Connection Pill */}
-        <div className="p-3.5 border-t border-slate-200 bg-slate-50/70">
-          <div className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  serverOnline === true
-                    ? 'bg-emerald-500 animate-pulse'
-                    : serverOnline === false
-                    ? 'bg-red-500'
-                    : 'bg-slate-400'
-                }`}
-              />
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-500 block leading-none">
-                  MySQL Database
-                </span>
-                <span className="text-[11px] font-mono text-slate-700 font-semibold leading-tight">
-                  {serverOnline ? 'asisten_praktikum_db' : 'Terputus'}
-                </span>
-              </div>
-            </div>
-            <Database className="w-3.5 h-3.5 text-slate-400" />
+        {/* Sidebar Footer: Minimal Workspace State */}
+        <div className="p-3 border-t border-slate-200/80 bg-slate-50/50">
+          <div className="px-2.5 py-1.5 flex items-center justify-between text-[11px] text-slate-500">
+            <span className="font-medium text-slate-600">Lab Assistant</span>
+            <span className="font-mono text-[10px] text-slate-400">v1.2</span>
           </div>
         </div>
       </aside>
@@ -292,11 +273,20 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick System Badge */}
+          {/* Clean System Status Pill */}
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold hidden md:inline-block">
-              Port: 5000 &bull; Laragon
-            </span>
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-600">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  serverOnline === true
+                    ? 'bg-emerald-500'
+                    : serverOnline === false
+                    ? 'bg-rose-500'
+                    : 'bg-slate-300'
+                }`}
+              />
+              <span>{serverOnline ? 'Sistem Terhubung' : 'Terputus'}</span>
+            </div>
           </div>
         </header>
 
