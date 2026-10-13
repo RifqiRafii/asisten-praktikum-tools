@@ -614,8 +614,14 @@ export default function FormPenilaian({ onNotify }: FormPenilaianProps) {
                               </p>
                             )}
 
-                            {/* Opsi Pilihan a, b, c (Tombol Klik Interaktif) */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pl-6">
+                            {/* Opsi Pilihan (Tombol Klik Interaktif - Mendukung 3 s.d 5 Tingkat) */}
+                            <div className={`grid gap-2 pl-6 ${
+                              options.length === 5
+                                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'
+                                : options.length === 4
+                                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+                                : 'grid-cols-1 sm:grid-cols-3'
+                            }`}>
                               {options.map((opt) => {
                                 const isChosen = selectedOption?.label === opt.label;
                                 const poinDidapat = (Number(kriteria.bobot) * Number(opt.skor_persen)) / 100;
@@ -625,7 +631,7 @@ export default function FormPenilaian({ onNotify }: FormPenilaianProps) {
                                     key={opt.label}
                                     type="button"
                                     onClick={() => handleSelectOption(idx, opt)}
-                                    className={`p-2.5 text-left rounded-md border text-xs transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+                                    className={`p-2.5 text-left rounded-md border text-xs transition cursor-pointer flex flex-col justify-between gap-1.5 min-h-[4.75rem] ${
                                       isChosen
                                         ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-500/20'
                                         : 'bg-white text-slate-800 border-slate-200 hover:bg-emerald-50/50 hover:border-emerald-300'
@@ -636,7 +642,7 @@ export default function FormPenilaian({ onNotify }: FormPenilaianProps) {
                                         Opsi {opt.label}
                                       </span>
                                       <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${isChosen ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                                        +{poinDidapat} poin ({opt.skor_persen}%)
+                                        +{poinDidapat} ({opt.skor_persen}%)
                                       </span>
                                     </div>
                                     <p className={`text-[11px] leading-snug line-clamp-2 ${isChosen ? 'text-white' : 'text-slate-600'}`}>

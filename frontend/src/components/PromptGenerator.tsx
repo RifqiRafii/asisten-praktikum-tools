@@ -10,7 +10,10 @@ import {
   ArrowRight, 
   FileJson, 
   Save, 
-  Loader2 
+  Loader2,
+  Minus,
+  Plus,
+  BookmarkCheck
 } from 'lucide-react';
 import type { MataKuliah, Modul, KriteriaItem } from '../types';
 import { api } from '../services/api';
@@ -40,6 +43,11 @@ export default function PromptGenerator({ onNotify }: PromptGeneratorProps) {
 
   const [instruksiKhusus, setInstruksiKhusus] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // Template Paten Asistensi State
+  const [includeAsistensiTemplate, setIncludeAsistensiTemplate] = useState(true);
+  const [jumlahChallenge, setJumlahChallenge] = useState(2);
+  const [skalaPenjelasan, setSkalaPenjelasan] = useState<'5_tingkat' | '3_tingkat'>('5_tingkat');
 
   // Bagian Import JSON Hasil dari AI
   const [jsonResponseFromAI, setJsonResponseFromAI] = useState('');
@@ -102,6 +110,73 @@ export default function PromptGenerator({ onNotify }: PromptGeneratorProps) {
       ? fokusKriteria.map((f, i) => `${i + 1}. ${f}`).join('\n')
       : '1. Fungsionalitas & Kesesuaian Instruksi\n2. Kualitas Kode & Best Practices';
 
+    let asistensiPromptSection = '';
+    let jsonAsistensiSample = '';
+
+    if (includeAsistensiTemplate) {
+      const challengeDescriptions = Array.from({ length: jumlahChallenge }, (_, i) => 
+        `   - Challenge ${i + 1}: Live coding / tantangan modifikasi kode langsung di hadapan asisten (Bobot saran: ${Math.max(5, Math.floor(20 / (jumlahChallenge || 1)))}%).`
+      ).join('\n');
+
+      const penjelasanOpsiList = skalaPenjelasan === '5_tingkat'
+        ? `   - Penjelasan & Pemahaman Konsep Mahasiswa (Wawancara Langsung, Bobot saran: 15%):
+       * Opsi a (100%): Sangat bisa menjelaskan (menguasai konsep & logika lancar)
+       * Opsi b (75%): Bisa menjelaskan (memahami alur kode dengan baik)
+       * Opsi c (50%): Cukup bisa menjelaskan (memahami sebagian konsep)
+       * Opsi d (25%): Kurang bisa menjelaskan (ragu-ragu / butuh bimbingan arahan)
+       * Opsi e (0%): Sangat kurang menjelaskan (tidak memahami kode yang dibuat)`
+        : `   - Penjelasan & Pemahaman Konsep Mahasiswa (Wawancara Langsung, Bobot saran: 15%):
+       * Opsi a (100%): Bisa menjelaskan (memahami alur dan logika kode)
+       * Opsi b (50%): Cukup bisa menjelaskan (memahami sebagian konsep kode)
+       * Opsi c (0%): Kurang bisa menjelaskan (tidak mampu menjelaskan alur logika kode)`;
+
+      asistensiPromptSection = `
+### ATURAN WAJIB TEMPLATE ASISTENSI (DI BAGIAN PALING BAWAH RUBRIK):
+Di urutan paling akhir dari tabel dan JSON rubrik penilaian, Anda WAJIB menyertakan template paten untuk sesi asistensi praktikum/live demo:
+1. Soal Challenge Asistensi (${jumlahChallenge} Butir Soal Tantangan Live Coding):
+${challengeDescriptions}
+2. Kemampuan Penjelasan Konsep Mahasiswa:
+${penjelasanOpsiList}
+
+PENTING PERHITUNGAN BOBOT: Total akumulasi bobot dari seluruh kriteria tugas teknis dokumen PDF ditambah template paten asistensi di atas HARUS PAS BERNILAI TEPAT 100%!
+`;
+
+      const challengeJsonRows = Array.from({ length: jumlahChallenge }, (_, i) => `  {
+    "aspek": "Challenge ${i + 1}: Live Coding / Tantangan Soal",
+    "bobot": ${Math.max(5, Math.floor(20 / (jumlahChallenge || 1)))},
+    "deskripsi": "Menyelesaikan tantangan ${i + 1} langsung saat asistensi",
+    "opsi": [
+      { "label": "a", "tingkat": "Tantangan selesai tepat & berfungsi sempurna", "skor_persen": 100 },
+      { "label": "b", "tingkat": "Selesai sebagian / ada bug minor", "skor_persen": 50 },
+      { "label": "c", "tingkat": "Tidak mampu menyelesaikan tantangan", "skor_persen": 0 }
+    ]
+  }`).join(',\n');
+
+      const penjelasanJsonRow = skalaPenjelasan === '5_tingkat' ? `  {
+    "aspek": "Penjelasan & Pemahaman Konsep (Asistensi)",
+    "bobot": 15,
+    "deskripsi": "Kemampuan menjelaskan alur kode dan logika saat diwawancara asisten",
+    "opsi": [
+      { "label": "a", "tingkat": "Sangat bisa menjelaskan (menguasai alur logika)", "skor_persen": 100 },
+      { "label": "b", "tingkat": "Bisa menjelaskan", "skor_persen": 75 },
+      { "label": "c", "tingkat": "Cukup bisa menjelaskan", "skor_persen": 50 },
+      { "label": "d", "tingkat": "Kurang bisa menjelaskan", "skor_persen": 25 },
+      { "label": "e", "tingkat": "Sangat kurang menjelaskan", "skor_persen": 0 }
+    ]
+  }` : `  {
+    "aspek": "Penjelasan & Pemahaman Konsep (Asistensi)",
+    "bobot": 15,
+    "deskripsi": "Kemampuan menjelaskan alur kode dan logika saat diwawancara asisten",
+    "opsi": [
+      { "label": "a", "tingkat": "Bisa menjelaskan (memahami alur)", "skor_persen": 100 },
+      { "label": "b", "tingkat": "Cukup bisa menjelaskan", "skor_persen": 50 },
+      { "label": "c", "tingkat": "Kurang bisa menjelaskan", "skor_persen": 0 }
+    ]
+  }`;
+
+      jsonAsistensiSample = `,\n${challengeJsonRows},\n${penjelasanJsonRow}`;
+    }
+
     return `Halo! Saya adalah seorang Asisten Praktikum untuk mata kuliah **${matkulNama}** (${targetTingkat}).
 Saya telah melampirkan file dokumen/PDF soal tugas praktikum untuk **${modulJudul}** (Judul Tugas: "${judulTugasStr}").
 
@@ -112,25 +187,20 @@ Tolong pelajari file PDF terlampir dan bantu saya merumuskan **Rubrik Penilaian 
 2. Prioritaskan pembobotan pada fokus aspek berikut:
 ${fokusStr}
 3. Pastikan total akumulasi seluruh bobot persentase bernilai TEPAT 100%.
-${instruksiKhusus.trim() ? `4. Catatan Tambahan: ${instruksiKhusus.trim()}\n` : ''}
+${instruksiKhusus.trim() ? `4. Catatan Tambahan: ${instruksiKhusus.trim()}\n` : ''}${asistensiPromptSection}
 ### FORMAT KELUARAN YANG SAYA BUTUHKAN:
 Tolong berikan jawaban dalam 2 bagian:
 
 **Bagian 1: Tabel Rubrik Penilaian Lengkap**
-Tampilkan tabel dengan kolom:
-- No
-- Aspek Penilaian
-- Bobot (%)
-- Indikator Nilai Maksimal
-- Kriteria Pengurangan Nilai / Catatan Asisten
+Tampilkan tabel dengan kolom: No, Aspek Penilaian, Bobot (%), Opsi Pencapaian (Indikator a, b, c${includeAsistensiTemplate && skalaPenjelasan === '5_tingkat' ? ', d, e' : ''}).
 
 **Bagian 2: Raw JSON String (Untuk saya impor langsung ke sistem penilaian klik-klik)**
-Berikan blok kode JSON murni yang berisi array objek dengan opsi tingkat penilaian (a, b, c):
+Berikan blok kode JSON murni yang berisi array objek dengan opsi tingkat penilaian:
 \`\`\`json
 [
   {
     "aspek": "Instruksi 1: Layout Tabel 3x3",
-    "bobot": 40,
+    "bobot": 35,
     "deskripsi": "Ketentuan tabel 3 baris x 3 kolom",
     "opsi": [
       { "label": "a", "tingkat": "Tabel sesuai ketentuan (lengkap 3x3)", "skor_persen": 100 },
@@ -147,7 +217,7 @@ Berikan blok kode JSON murni yang berisi array objek dengan opsi tingkat penilai
       { "label": "b", "tingkat": "Styling sebagian / kurang konsisten", "skor_persen": 50 },
       { "label": "c", "tingkat": "Tidak ada styling sama sekali", "skor_persen": 0 }
     ]
-  }
+  }${jsonAsistensiSample}
 ]
 \`\`\``;
   }, [
@@ -157,6 +227,9 @@ Berikan blok kode JSON murni yang berisi array objek dengan opsi tingkat penilai
     targetTingkat,
     fokusKriteria,
     instruksiKhusus,
+    includeAsistensiTemplate,
+    jumlahChallenge,
+    skalaPenjelasan,
   ]);
 
   // Fungsi Salin Prompt ke Clipboard
@@ -394,6 +467,119 @@ Berikan blok kode JSON murni yang berisi array objek dengan opsi tingkat penilai
             placeholder="Contoh: Berikan perhatian khusus pada validasi form dan respon pesan error"
             className="w-full h-8 px-2.5 text-xs bg-white border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600"
           />
+        </div>
+
+        {/* Template Paten Asistensi (Bagian Paling Bawah Rubrik) */}
+        <div className="mt-3 bg-slate-50/90 border border-slate-200 rounded-lg p-3.5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                <BookmarkCheck className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">
+                  Template Paten Asistensi (Posisi Paling Bawah)
+                </h4>
+                <p className="text-[10px] text-slate-500">
+                  Standar pengujian langsung sesi asistensi: Challenge live coding + Penjelasan konsep
+                </p>
+              </div>
+            </div>
+
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeAsistensiTemplate}
+                onChange={(e) => setIncludeAsistensiTemplate(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+
+          {includeAsistensiTemplate && (
+            <div className="pt-2.5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              {/* Konfigurasi Jumlah Challenge */}
+              <div className="bg-white p-2.5 rounded border border-slate-200">
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1.5">
+                  Jumlah Soal Tantangan (Challenge):
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setJumlahChallenge((prev) => Math.max(1, prev - 1))}
+                    disabled={jumlahChallenge <= 1}
+                    className="w-7 h-7 rounded border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Kurangi Soal"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="font-mono font-bold text-xs px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded min-w-[5rem] text-center">
+                    {jumlahChallenge} Soal
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setJumlahChallenge((prev) => Math.min(5, prev + 1))}
+                    disabled={jumlahChallenge >= 5}
+                    className="w-7 h-7 rounded border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Tambah Soal"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Live coding / modifikasi kode langsung (1-5 soal).
+                </p>
+              </div>
+
+              {/* Konfigurasi Skala Penilaian Penjelasan */}
+              <div className="bg-white p-2.5 rounded border border-slate-200">
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1.5">
+                  Skala Pilihan Penjelasan:
+                </label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSkalaPenjelasan('5_tingkat')}
+                    className={`p-1.5 text-[11px] rounded border transition text-left cursor-pointer ${
+                      skalaPenjelasan === '5_tingkat'
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold'
+                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="font-bold flex items-center justify-between">
+                      <span>5 Tingkat</span>
+                      {skalaPenjelasan === '5_tingkat' && <span className="text-[10px] text-emerald-600 font-mono">✓</span>}
+                    </div>
+                    <span className="text-[9px] text-slate-500 block truncate">
+                      Sangat Kurang &rarr; Sangat Bisa
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSkalaPenjelasan('3_tingkat')}
+                    className={`p-1.5 text-[11px] rounded border transition text-left cursor-pointer ${
+                      skalaPenjelasan === '3_tingkat'
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold'
+                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="font-bold flex items-center justify-between">
+                      <span>3 Tingkat</span>
+                      {skalaPenjelasan === '3_tingkat' && <span className="text-[10px] text-emerald-600 font-mono">✓</span>}
+                    </div>
+                    <span className="text-[9px] text-slate-500 block truncate">
+                      Kurang &bull; Cukup &bull; Bisa
+                    </span>
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Evaluasi pemahaman konsep mahasiswa saat ditanya.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
